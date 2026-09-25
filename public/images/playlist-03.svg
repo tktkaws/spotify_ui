@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title">
+  <title id="title">Deep Current abstract cover</title>
+  <defs>
+    <radialGradient id="bg" cx=".3" cy=".25" r=".9">
+      <stop stop-color="#1aa2a9"/>
+      <stop offset=".48" stop-color="#064a66"/>
+      <stop offset="1" stop-color="#071d35"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <g fill="none" stroke="#5ee7dd" opacity=".55">
+    <circle cx="315" cy="372" r="126" stroke-width="2"/>
+    <circle cx="315" cy="372" r="191" stroke-width="3"/>
+    <circle cx="315" cy="372" r="270" stroke-width="4"/>
+    <path d="M-20 542c190-87 288-61 411 17 115 73 242 66 436-37" stroke-width="22"/>
+    <path d="M-20 626c188-81 286-57 409 10 119 66 250 61 438-34" stroke-width="7"/>
+  </g>
+  <text x="74" y="118" fill="#d8ffff" font-family="Arial, sans-serif" font-size="33" letter-spacing="15">DEEP</text>
+  <text x="69" y="194" fill="#d8ffff" font-family="Arial, sans-serif" font-size="76" font-weight="700">CURRENT</text>
+</svg>

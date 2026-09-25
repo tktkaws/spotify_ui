@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title">
+  <title id="title">Morning Bloom abstract cover</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop stop-color="#e3a15f"/>
+      <stop offset=".55" stop-color="#f5d9ad"/>
+      <stop offset="1" stop-color="#6e9e6c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <circle cx="400" cy="390" r="104" fill="#f9f1d8"/>
+  <g fill="none" stroke="#425f3c" stroke-width="34" stroke-linecap="round">
+    <path d="M400 390c-210-220-322-24-148 66"/>
+    <path d="M400 390c220-210 313-2 141 75"/>
+    <path d="M400 390c-96 275 131 298 132 83"/>
+    <path d="M400 390c83 280-159 287-142 76"/>
+  </g>
+  <text x="64" y="106" fill="#273a26" font-family="Georgia, serif" font-size="50">morning</text>
+  <text x="64" y="169" fill="#273a26" font-family="Georgia, serif" font-size="72" font-style="italic">bloom</text>
+</svg>
