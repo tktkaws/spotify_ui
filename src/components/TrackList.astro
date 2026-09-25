@@ -1,0 +1,58 @@
+---
+import type { Track } from '../data/playlists';
+
+interface Props {
+  tracks: Track[];
+}
+
+const { tracks } = Astro.props;
+---
+
+<section class="playlist-content" aria-label="プレイリストの曲">
+  <div class="playlist-actions">
+    <button class="play-button" type="button" aria-label="プレイリストを再生">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5.14v13.72a1 1 0 0 0 1.52.86l10.28-6.86a1 1 0 0 0 0-1.72L9.52 4.28A1 1 0 0 0 8 5.14Z"></path>
+      </svg>
+    </button>
+    <button class="icon-button icon-button--save" type="button" aria-label="ライブラリに保存">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M8 12.3 10.5 15l5.8-6"></path>
+      </svg>
+    </button>
+    <button class="icon-button" type="button" aria-label="その他のオプション">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="5" cy="12" r="1.5"></circle>
+        <circle cx="12" cy="12" r="1.5"></circle>
+        <circle cx="19" cy="12" r="1.5"></circle>
+      </svg>
+    </button>
+  </div>
+
+  <div class="track-table">
+    <div class="track-row track-row--header" role="row">
+      <span class="track-number" aria-label="曲番号">#</span>
+      <span>タイトル</span>
+      <span class="track-album">アルバム</span>
+      <svg class="track-clock" viewBox="0 0 24 24" aria-label="再生時間" role="img">
+        <circle cx="12" cy="12" r="8.5"></circle>
+        <path d="M12 7.5v5l3.4 2"></path>
+      </svg>
+    </div>
+
+    <div data-track-list>
+      {tracks.map((track, index) => (
+        <article class="track-row" data-track-row>
+          <span class="track-number">{index + 1}</span>
+          <div class="track-title">
+            <strong>{track.title}</strong>
+            <span>{track.artist}</span>
+          </div>
+          <span class="track-album">{track.album}</span>
+          <span class="track-duration">{track.duration}</span>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

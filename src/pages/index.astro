@@ -1,17 +1,53 @@
 ---
+import PlaylistHero from '../components/PlaylistHero.astro';
+import TrackList from '../components/TrackList.astro';
+import { playlists } from '../data/playlists';
+import '../styles/global.css';
 
+const initialPlaylist = playlists[0]!;
 ---
 
-<html lang="en">
+<html lang="ja">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta
+			name="description"
+			content="画像の色とスクロールに反応するSpotify風プレイリストUIのインタラクションデモ"
+		/>
+		<meta name="theme-color" content="#121212" />
+		<title>{initialPlaylist.title} — Playlist Lab</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main class="app-shell">
+			<PlaylistHero playlist={initialPlaylist} />
+			<TrackList tracks={initialPlaylist.tracks} />
+		</main>
+
+		<aside
+			id="tweakpane-panel"
+			class="tweakpane-host"
+			data-tweakpane-host
+			data-collapsed="false"
+			aria-label="表示とアニメーションの調整"
+		></aside>
+		<button
+			class="pane-toggle"
+			data-pane-toggle
+			type="button"
+			aria-controls="tweakpane-panel"
+			aria-expanded="true"
+		>
+			調整を閉じる
+		</button>
+
+		<script>
+			import { playlists } from '../data/playlists';
+			import { setupPlaylistExperience } from '../scripts/playlist';
+
+			setupPlaylistExperience(playlists);
+		</script>
 	</body>
 </html>

@@ -1,0 +1,51 @@
+---
+import type { Playlist } from '../data/playlists';
+
+interface Props {
+  playlist: Playlist;
+}
+
+const { playlist } = Astro.props;
+---
+
+<header class="compact-header" data-compact-header aria-hidden="true">
+  <div class="compact-header__inner">
+    <button class="play-button play-button--small" type="button" aria-label="プレイリストを再生">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5.14v13.72a1 1 0 0 0 1.52.86l10.28-6.86a1 1 0 0 0 0-1.72L9.52 4.28A1 1 0 0 0 8 5.14Z"></path>
+      </svg>
+    </button>
+    <span class="compact-header__title" data-compact-title>{playlist.title}</span>
+  </div>
+</header>
+
+<section class="playlist-hero" data-playlist-hero aria-labelledby="playlist-title">
+  <div class="playlist-hero__wash" aria-hidden="true"></div>
+  <div class="playlist-hero__inner">
+    <div class="cover-wrap" data-cover-wrap>
+      <img
+        class="cover-art"
+        data-cover-art
+        src={playlist.image}
+        alt={`${playlist.title}のプレイリストカバー`}
+        width="320"
+        height="320"
+        fetchpriority="high"
+      />
+    </div>
+
+    <div class="playlist-meta">
+      <p class="playlist-meta__eyebrow">プレイリスト</p>
+      <h1 id="playlist-title" class="playlist-meta__title" data-playlist-title>{playlist.title}</h1>
+      <p class="playlist-meta__description" data-playlist-description>{playlist.description}</p>
+      <p class="playlist-meta__details">
+        <span class="owner-mark" aria-hidden="true">SS</span>
+        <strong data-playlist-owner>{playlist.owner}</strong>
+        <span aria-hidden="true">•</span>
+        <span><span data-playlist-followers>{playlist.followers}</span>件の保存</span>
+        <span aria-hidden="true">•</span>
+        <span data-playlist-duration>{playlist.totalDuration}</span>
+      </p>
+    </div>
+  </div>
+</section>
