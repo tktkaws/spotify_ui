@@ -11,6 +11,4 @@
   <circle cx="555" cy="260" r="145" fill="#ffd990" opacity=".88"/>
   <path d="M0 553c138-63 262-68 369-18 135 63 242 53 431-43v308H0Z" fill="#692e3a" opacity=".82"/>
   <path d="M0 642c175-77 306-68 432-4 94 48 206 42 368-27v189H0Z" fill="#351e33"/>
-  <text x="62" y="112" fill="#fff2d6" font-family="Georgia, serif" font-size="40" letter-spacing="5">GOLDEN</text>
-  <text x="59" y="190" fill="#fff2d6" font-family="Georgia, serif" font-size="88" font-style="italic">Hour</text>
 </svg>

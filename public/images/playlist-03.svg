@@ -15,6 +15,4 @@
     <path d="M-20 542c190-87 288-61 411 17 115 73 242 66 436-37" stroke-width="22"/>
     <path d="M-20 626c188-81 286-57 409 10 119 66 250 61 438-34" stroke-width="7"/>
   </g>
-  <text x="74" y="118" fill="#d8ffff" font-family="Arial, sans-serif" font-size="33" letter-spacing="15">DEEP</text>
-  <text x="69" y="194" fill="#d8ffff" font-family="Arial, sans-serif" font-size="76" font-weight="700">CURRENT</text>
 </svg>
