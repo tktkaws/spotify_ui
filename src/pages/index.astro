@@ -23,14 +23,14 @@ const initialPlaylist = playlists[0]!;
 	<body>
 		<main class="app-shell">
 			<PlaylistHero playlist={initialPlaylist} />
-			<TrackList playlist={initialPlaylist} />
+			<TrackList playlist={initialPlaylist} playlists={playlists} />
 		</main>
 
 		<aside
 			id="tweakpane-panel"
 			class="tweakpane-host"
 			data-tweakpane-host
-			data-collapsed="false"
+			data-collapsed="true"
 			aria-label="表示とアニメーションの調整"
 		></aside>
 		<button
@@ -38,9 +38,9 @@ const initialPlaylist = playlists[0]!;
 			data-pane-toggle
 			type="button"
 			aria-controls="tweakpane-panel"
-			aria-expanded="true"
+			aria-expanded="false"
 		>
-			調整を閉じる
+			調整を開く
 		</button>
 
 		<script>

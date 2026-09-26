@@ -10,9 +10,9 @@ const { playlist } = Astro.props;
 
 <header class="compact-header" data-compact-header aria-hidden="true">
   <div class="compact-header__inner">
-    <button class="play-button play-button--small" type="button" aria-label="プレイリストを再生">
+    <button class="compact-header__top-button" data-scroll-top type="button" aria-label="ページ上部へ戻る">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M8 5.14v13.72a1 1 0 0 0 1.52.86l10.28-6.86a1 1 0 0 0 0-1.72L9.52 4.28A1 1 0 0 0 8 5.14Z"></path>
+        <path d="M12 20V4M5 11l7-7 7 7"></path>
       </svg>
     </button>
     <span class="compact-header__title" data-compact-title>{playlist.title}</span>

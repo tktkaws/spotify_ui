@@ -3,9 +3,10 @@ import type { Playlist } from '../data/playlists';
 
 interface Props {
   playlist: Playlist;
+  playlists: Playlist[];
 }
 
-const { playlist } = Astro.props;
+const { playlist, playlists } = Astro.props;
 ---
 
 <section class="playlist-content" aria-label="プレイリストの曲">
@@ -67,4 +68,25 @@ const { playlist } = Astro.props;
       ))}
     </div>
   </div>
+
+  <nav class="playlist-switcher" aria-labelledby="playlist-switcher-title">
+    <h2 id="playlist-switcher-title">他のプレイリスト</h2>
+    <ul>
+      {playlists.map((item) => (
+        <li>
+          <button
+            class="playlist-switcher__button"
+            type="button"
+            data-playlist-select={item.id}
+            aria-current={item.id === playlist.id ? 'true' : undefined}
+          >
+            <img src={item.image} alt="" width="240" height="240" loading="lazy" />
+            <span>
+              <strong>{item.title}</strong>
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </section>
