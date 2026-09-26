@@ -6,10 +6,10 @@ import { setupTweakpane } from './tweakpane';
 gsap.registerPlugin(ScrollTrigger);
 
 export type AnimationSettings = {
-  minSize: number;
+  minScale: number;
   shrinkDistance: number;
   fadeDistance: number;
-  scrub: number;
+  scrub: true;
   headerReveal: number;
   gradientStrength: number;
   markers: boolean;
@@ -135,10 +135,10 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
   const totalDuration = requiredElement<HTMLElement>('[data-playlist-duration]');
 
   const settings: AnimationSettings = {
-    minSize: 100,
+    minScale: 0.5,
     shrinkDistance: 250,
     fadeDistance: 125,
-    scrub: 0.45,
+    scrub: true,
     headerReveal: 0.72,
     gradientStrength: 0.92,
     markers: false,
@@ -153,7 +153,7 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
 
   const rebuildAnimation = (): void => {
     media?.revert();
-    gsap.set(coverWrap, { clearProps: 'transform,opacity,visibility' });
+    gsap.set(coverWrap, { clearProps: 'width,paddingTop,transform,opacity,visibility' });
     gsap.set(compactHeader, { autoAlpha: 0, y: -8 });
     setHeaderAccessibility(false);
 
@@ -183,29 +183,47 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
           return () => trigger.kill();
         }
 
-        const coverSize = coverWrap.getBoundingClientRect().width || 320;
-        const targetScale = Math.min(1, settings.minSize / coverSize);
-        const revealAt = settings.shrinkDistance + settings.fadeDistance * settings.headerReveal;
+        const coverSize = coverWrap.getBoundingClientRect().width;
+        const targetWidth = coverSize * settings.minScale;
+        const coverPadding = Number.parseFloat(getComputedStyle(coverWrap).paddingTop);
+        const targetPadding = coverPadding * settings.minScale;
+        const revealAt = settings.fadeDistance * settings.headerReveal;
         const headerDuration = Math.max(28, settings.fadeDistance * (1 - settings.headerReveal));
-        const totalDistance = settings.shrinkDistance + settings.fadeDistance;
 
-        const timeline = gsap.timeline({
+        const shrinkTimeline = gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
             trigger: hero,
             start: 'top top',
-            end: `+=${totalDistance}`,
+            end: `+=${settings.shrinkDistance}`,
             scrub: settings.scrub,
+            pin: true,
+            pinSpacing: false,
             invalidateOnRefresh: true,
             markers: settings.markers,
-            onUpdate: (self) => setHeaderAccessibility(self.progress >= revealAt / totalDistance),
           },
         });
 
-        timeline
-          .addLabel('shrink', 0)
-          .to(coverWrap, { scale: targetScale, duration: settings.shrinkDistance }, 'shrink')
-          .addLabel('fade', settings.shrinkDistance)
+        shrinkTimeline.to(coverWrap, {
+          width: targetWidth,
+          paddingTop: targetPadding,
+          duration: settings.shrinkDistance,
+        });
+
+        const fadeTimeline = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: hero,
+            start: () => shrinkTimeline.scrollTrigger?.end ?? 0,
+            end: () => (shrinkTimeline.scrollTrigger?.end ?? 0) + settings.fadeDistance,
+            scrub: settings.scrub,
+            invalidateOnRefresh: true,
+            markers: settings.markers,
+            onUpdate: (self) => setHeaderAccessibility(self.progress >= settings.headerReveal),
+          },
+        });
+
+        fadeTimeline
           .to(coverWrap, { autoAlpha: 0, duration: settings.fadeDistance }, 'fade')
           .fromTo(
             compactHeader,
@@ -214,7 +232,10 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
             revealAt,
           );
 
-        return () => timeline.kill();
+        return () => {
+          shrinkTimeline.kill();
+          fadeTimeline.kill();
+        };
       },
     );
 

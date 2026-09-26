@@ -9,10 +9,9 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
 
   const params = {
     playlist: playlists[0]?.id ?? '',
-    minSize: controller.settings.minSize,
+    minScale: controller.settings.minScale,
     shrinkDistance: controller.settings.shrinkDistance,
     fadeDistance: controller.settings.fadeDistance,
-    scrub: controller.settings.scrub,
     headerReveal: controller.settings.headerReveal,
     gradientStrength: controller.settings.gradientStrength,
     markers: controller.settings.markers,
@@ -35,9 +34,9 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
 
   const motion = pane.addFolder({ title: 'スクロール演出', expanded: true });
   motion
-    .addBinding(params, 'minSize', { label: '最小サイズ', min: 72, max: 180, step: 1 })
+    .addBinding(params, 'minScale', { label: '縮小率', min: 0.1, max: 0.75, step: 0.01 })
     .on('change', (event) => {
-      if (event.last) controller.updateSettings({ minSize: event.value });
+      if (event.last) controller.updateSettings({ minScale: event.value });
     });
   motion
     .addBinding(params, 'shrinkDistance', { label: '縮小距離', min: 120, max: 520, step: 5 })
@@ -50,16 +49,10 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
       if (event.last) controller.updateSettings({ fadeDistance: event.value });
     });
   motion
-    .addBinding(params, 'scrub', { label: '追従の滑らかさ', min: 0, max: 1.5, step: 0.05 })
-    .on('change', (event) => {
-      if (event.last) controller.updateSettings({ scrub: event.value });
-    });
-  motion
     .addBinding(params, 'headerReveal', { label: 'ヘッダー位置', min: 0, max: 1, step: 0.01 })
     .on('change', (event) => {
       if (event.last) controller.updateSettings({ headerReveal: event.value });
     });
-
   const appearance = pane.addFolder({ title: '表示', expanded: true });
   appearance
     .addBinding(params, 'gradientStrength', { label: 'グラデーション', min: 0.35, max: 1, step: 0.01 })
