@@ -11,7 +11,9 @@ export type AnimationSettings = {
   fadeDistance: number;
   scrub: true;
   headerReveal: number;
+  gradientColor: string;
   gradientStrength: number;
+  gradientRange: number;
   markers: boolean;
 };
 
@@ -22,6 +24,25 @@ export type PlaylistController = {
 };
 
 const DEFAULT_ACCENT = [60, 73, 126] as const;
+
+function hexToRgb(hex: string): [number, number, number] | undefined {
+  const normalized = hex.replace('#', '');
+  if (!/^[\da-f]{6}$/i.test(normalized)) return undefined;
+
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16),
+  ];
+}
+
+function rgbToHex([r, g, b]: readonly number[]): string {
+  return `#${[r, g, b].map((value) => Math.round(value).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function perceivedBrightness([r, g, b]: readonly number[]): number {
+  return (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+}
 
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -122,11 +143,18 @@ async function extractAccentColor(image: HTMLImageElement): Promise<[number, num
 
 export function setupPlaylistExperience(playlists: Playlist[]): void {
   const root = document.documentElement;
+  const appShell = requiredElement<HTMLElement>('.app-shell');
   const hero = requiredElement<HTMLElement>('[data-playlist-hero]');
+  const heroInner = requiredElement<HTMLElement>('.playlist-hero__inner');
   const coverWrap = requiredElement<HTMLElement>('[data-cover-wrap]');
   const cover = requiredElement<HTMLImageElement>('[data-cover-art]');
   const compactHeader = requiredElement<HTMLElement>('[data-compact-header]');
+  const scrollTopButton = requiredElement<HTMLButtonElement>('[data-scroll-top]');
+  const trackTable = requiredElement<HTMLElement>('.track-table');
   const trackList = requiredElement<HTMLElement>('[data-track-list]');
+  const playlistButtons = [
+    ...document.querySelectorAll<HTMLButtonElement>('[data-playlist-select]'),
+  ];
   const title = requiredElement<HTMLElement>('[data-playlist-title]');
   const compactTitle = requiredElement<HTMLElement>('[data-compact-title]');
   const description = requiredElement<HTMLElement>('[data-playlist-description]');
@@ -135,12 +163,14 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
   const totalDuration = requiredElement<HTMLElement>('[data-playlist-duration]');
 
   const settings: AnimationSettings = {
-    minScale: 0.5,
+    minScale: 0.58,
     shrinkDistance: 250,
-    fadeDistance: 125,
+    fadeDistance: 250,
     scrub: true,
-    headerReveal: 0.72,
-    gradientStrength: 0.92,
+    headerReveal: 0.15,
+    gradientColor: '#3c497e',
+    gradientStrength: 1,
+    gradientRange: 1,
     markers: false,
   };
 
@@ -149,6 +179,29 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
 
   const setHeaderAccessibility = (visible: boolean): void => {
     compactHeader.setAttribute('aria-hidden', String(!visible));
+  };
+
+  const scrollToPageTop = (): void => {
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
+  };
+
+  const applyGradientColor = (rgb: readonly number[]): void => {
+    root.style.setProperty('--accent-rgb', rgb.join(', '));
+    root.style.setProperty(
+      '--gradient-description-strength',
+      perceivedBrightness(rgb) >= 0.7 ? '0.2' : '0.5',
+    );
+  };
+
+  const updateGradientStops = (): void => {
+    const shellTop = appShell.getBoundingClientRect().top;
+    const descriptionEnd = description.getBoundingClientRect().bottom - shellTop;
+    const trackStart = trackTable.getBoundingClientRect().top - shellTop;
+    root.style.setProperty('--gradient-description-stop', `${Math.max(0, descriptionEnd)}px`);
+    root.style.setProperty('--gradient-track-stop', `${Math.max(descriptionEnd, trackStart)}px`);
   };
 
   const rebuildAnimation = (): void => {
@@ -187,27 +240,33 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
         const targetWidth = coverSize * settings.minScale;
         const coverPadding = Number.parseFloat(getComputedStyle(coverWrap).paddingTop);
         const targetPadding = coverPadding * settings.minScale;
-        const revealAt = settings.fadeDistance * settings.headerReveal;
-        const headerDuration = Math.max(28, settings.fadeDistance * (1 - settings.headerReveal));
+        const contentMaxWidth =
+          Number.parseFloat(getComputedStyle(root).getPropertyValue('--content-max-width')) || 800;
+        const responsiveScale = Math.min(1, heroInner.getBoundingClientRect().width / contentMaxWidth);
+        const shrinkDistance = settings.shrinkDistance * responsiveScale;
+        const fadeDistance = settings.fadeDistance * responsiveScale;
+        const revealAt = fadeDistance * settings.headerReveal;
+        const headerDuration = Math.max(12, fadeDistance * (1 - settings.headerReveal));
 
         const shrinkTimeline = gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
             trigger: hero,
             start: 'top top',
-            end: `+=${settings.shrinkDistance}`,
+            end: `+=${shrinkDistance}`,
             scrub: settings.scrub,
             pin: true,
             pinSpacing: false,
             invalidateOnRefresh: true,
             markers: settings.markers,
+            onUpdate: updateGradientStops,
           },
         });
 
         shrinkTimeline.to(coverWrap, {
           width: targetWidth,
           paddingTop: targetPadding,
-          duration: settings.shrinkDistance,
+          duration: shrinkDistance,
         });
 
         const fadeTimeline = gsap.timeline({
@@ -215,16 +274,19 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
           scrollTrigger: {
             trigger: hero,
             start: () => shrinkTimeline.scrollTrigger?.end ?? 0,
-            end: () => (shrinkTimeline.scrollTrigger?.end ?? 0) + settings.fadeDistance,
+            end: () => (shrinkTimeline.scrollTrigger?.end ?? 0) + fadeDistance,
             scrub: settings.scrub,
             invalidateOnRefresh: true,
             markers: settings.markers,
-            onUpdate: (self) => setHeaderAccessibility(self.progress >= settings.headerReveal),
+            onUpdate: (self) => {
+              setHeaderAccessibility(self.progress >= settings.headerReveal);
+              updateGradientStops();
+            },
           },
         });
 
         fadeTimeline
-          .to(coverWrap, { autoAlpha: 0, duration: settings.fadeDistance }, 'fade')
+          .to(coverWrap, { autoAlpha: 0, duration: fadeDistance }, 'fade')
           .fromTo(
             compactHeader,
             { autoAlpha: 0, y: -8 },
@@ -239,11 +301,21 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
       },
     );
 
-    requestAnimationFrame(() => ScrollTrigger.refresh());
+    requestAnimationFrame(() => {
+      updateGradientStops();
+      ScrollTrigger.refresh();
+    });
   };
 
   const renderPlaylist = async (playlist: Playlist): Promise<void> => {
     activePlaylist = playlist;
+    for (const button of playlistButtons) {
+      if (button.dataset.playlistSelect === playlist.id) {
+        button.setAttribute('aria-current', 'true');
+      } else {
+        button.removeAttribute('aria-current');
+      }
+    }
     title.textContent = playlist.title;
     compactTitle.textContent = playlist.title;
     description.textContent = playlist.description;
@@ -261,26 +333,69 @@ export function setupPlaylistExperience(playlists: Playlist[]): void {
 
     const accent = await extractAccentColor(cover);
     if (activePlaylist !== playlist) return;
-    root.style.setProperty('--accent-rgb', accent.join(', '));
+    settings.gradientColor = rgbToHex(accent);
+    applyGradientColor(accent);
     rebuildAnimation();
+    document.dispatchEvent(new CustomEvent('playlistchange', { detail: { id: playlist.id } }));
   };
 
   const controller: PlaylistController = {
     settings,
     selectPlaylist: async (id) => {
       const playlist = playlists.find((item) => item.id === id);
-      if (playlist) await renderPlaylist(playlist);
+      if (playlist) {
+        await renderPlaylist(playlist);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToPageTop();
+          });
+        });
+      }
     },
     updateSettings: (nextSettings, shouldRebuild = true) => {
       Object.assign(settings, nextSettings);
+      const gradientRgb = hexToRgb(settings.gradientColor);
+      if (gradientRgb) applyGradientColor(gradientRgb);
       root.style.setProperty('--gradient-strength', String(settings.gradientStrength));
+      root.style.setProperty('--gradient-range', String(settings.gradientRange));
       if (shouldRebuild) rebuildAnimation();
     },
   };
 
+  const interactionController = new AbortController();
+  scrollTopButton.addEventListener('click', scrollToPageTop, {
+    signal: interactionController.signal,
+  });
+  for (const button of playlistButtons) {
+    button.addEventListener(
+      'click',
+      () => {
+        const id = button.dataset.playlistSelect;
+        if (id && id !== activePlaylist.id) void controller.selectPlaylist(id);
+      },
+      { signal: interactionController.signal },
+    );
+  }
+
   setupTweakpane(playlists, controller);
   void renderPlaylist(activePlaylist);
 
+  let observedWidth = heroInner.getBoundingClientRect().width;
+  const resizeObserver = new ResizeObserver(([entry]) => {
+    if (!entry || Math.abs(entry.contentRect.width - observedWidth) < 1) return;
+    observedWidth = entry.contentRect.width;
+    rebuildAnimation();
+  });
+  resizeObserver.observe(heroInner);
+
   window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
-  window.addEventListener('beforeunload', () => media?.revert(), { once: true });
+  window.addEventListener(
+    'beforeunload',
+    () => {
+      interactionController.abort();
+      resizeObserver.disconnect();
+      media?.revert();
+    },
+    { once: true },
+  );
 }

@@ -13,7 +13,9 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
     shrinkDistance: controller.settings.shrinkDistance,
     fadeDistance: controller.settings.fadeDistance,
     headerReveal: controller.settings.headerReveal,
+    gradientColor: controller.settings.gradientColor,
     gradientStrength: controller.settings.gradientStrength,
+    gradientRange: controller.settings.gradientRange,
     markers: controller.settings.markers,
   };
 
@@ -23,13 +25,16 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
     expanded: true,
   });
 
-  pane
+  let syncGradientColor = (): void => {};
+
+  const playlistBinding = pane
     .addBinding(params, 'playlist', {
       label: '画像 / リスト',
       options: Object.fromEntries(playlists.map((playlist) => [playlist.title, playlist.id])),
     })
-    .on('change', (event) => {
-      void controller.selectPlaylist(event.value);
+    .on('change', async (event) => {
+      await controller.selectPlaylist(event.value);
+      syncGradientColor();
     });
 
   const motion = pane.addFolder({ title: 'スクロール演出', expanded: true });
@@ -54,10 +59,36 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
       if (event.last) controller.updateSettings({ headerReveal: event.value });
     });
   const appearance = pane.addFolder({ title: '表示', expanded: true });
+  const gradientColorBinding = appearance
+    .addBinding(params, 'gradientColor', { label: '背景色', view: 'color' })
+    .on('change', (event) => {
+      controller.updateSettings({ gradientColor: event.value }, false);
+    });
+  syncGradientColor = () => {
+    params.gradientColor = controller.settings.gradientColor;
+    gradientColorBinding.refresh();
+  };
+
+  const eventController = new AbortController();
+  document.addEventListener(
+    'playlistchange',
+    (event) => {
+      const id = (event as CustomEvent<{ id: string }>).detail.id;
+      params.playlist = id;
+      playlistBinding.refresh();
+      syncGradientColor();
+    },
+    { signal: eventController.signal },
+  );
   appearance
     .addBinding(params, 'gradientStrength', { label: 'グラデーション', min: 0.35, max: 1, step: 0.01 })
     .on('change', (event) => {
       controller.updateSettings({ gradientStrength: event.value }, false);
+    });
+  appearance
+    .addBinding(params, 'gradientRange', { label: 'グラデーション範囲', min: 0.5, max: 2, step: 0.05 })
+    .on('change', (event) => {
+      controller.updateSettings({ gradientRange: event.value }, false);
     });
   appearance.addBinding(params, 'markers', { label: 'トリガー表示' }).on('change', (event) => {
     controller.updateSettings({ markers: event.value });
@@ -73,6 +104,13 @@ export function setupTweakpane(playlists: Playlist[], controller: PlaylistContro
     setCollapsed(host.dataset.collapsed !== 'true');
   });
 
-  setCollapsed(window.matchMedia('(max-width: 720px)').matches);
-  window.addEventListener('beforeunload', () => pane.dispose(), { once: true });
+  setCollapsed(true);
+  window.addEventListener(
+    'beforeunload',
+    () => {
+      eventController.abort();
+      pane.dispose();
+    },
+    { once: true },
+  );
 }
