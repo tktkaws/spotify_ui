@@ -23,7 +23,7 @@ const initialPlaylist = playlists[0]!;
 	<body>
 		<main class="app-shell">
 			<PlaylistHero playlist={initialPlaylist} />
-			<TrackList tracks={initialPlaylist.tracks} />
+			<TrackList playlist={initialPlaylist} />
 		</main>
 
 		<aside

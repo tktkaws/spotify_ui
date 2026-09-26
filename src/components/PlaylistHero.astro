@@ -20,32 +20,20 @@ const { playlist } = Astro.props;
 </header>
 
 <section class="playlist-hero" data-playlist-hero aria-labelledby="playlist-title">
-  <div class="playlist-hero__wash" aria-hidden="true"></div>
   <div class="playlist-hero__inner">
     <div class="cover-wrap" data-cover-wrap>
-      <img
-        class="cover-art"
-        data-cover-art
-        src={playlist.image}
-        alt={`${playlist.title}のプレイリストカバー`}
-        width="320"
-        height="320"
-        fetchpriority="high"
-      />
-    </div>
-
-    <div class="playlist-meta">
-      <p class="playlist-meta__eyebrow">プレイリスト</p>
-      <h1 id="playlist-title" class="playlist-meta__title" data-playlist-title>{playlist.title}</h1>
-      <p class="playlist-meta__description" data-playlist-description>{playlist.description}</p>
-      <p class="playlist-meta__details">
-        <span class="owner-mark" aria-hidden="true">SS</span>
-        <strong data-playlist-owner>{playlist.owner}</strong>
-        <span aria-hidden="true">•</span>
-        <span><span data-playlist-followers>{playlist.followers}</span>件の保存</span>
-        <span aria-hidden="true">•</span>
-        <span data-playlist-duration>{playlist.totalDuration}</span>
-      </p>
+      <div class="cover-visual">
+        <img
+          class="cover-art"
+          data-cover-art
+          src={playlist.image}
+          alt={`${playlist.title}のプレイリストカバー`}
+          width="320"
+          height="320"
+          fetchpriority="high"
+        />
+        <h1 id="playlist-title" class="playlist-meta__title" data-playlist-title>{playlist.title}</h1>
+      </div>
     </div>
   </div>
 </section>

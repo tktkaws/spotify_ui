@@ -1,14 +1,26 @@
 ---
-import type { Track } from '../data/playlists';
+import type { Playlist } from '../data/playlists';
 
 interface Props {
-  tracks: Track[];
+  playlist: Playlist;
 }
 
-const { tracks } = Astro.props;
+const { playlist } = Astro.props;
 ---
 
 <section class="playlist-content" aria-label="プレイリストの曲">
+  <div class="playlist-meta">
+    <p class="playlist-meta__description" data-playlist-description>{playlist.description}</p>
+    <p class="playlist-meta__details">
+      <span class="owner-mark" aria-hidden="true">SS</span>
+      <strong data-playlist-owner>{playlist.owner}</strong>
+      <span aria-hidden="true">•</span>
+      <span><span data-playlist-followers>{playlist.followers}</span>件の保存</span>
+      <span aria-hidden="true">•</span>
+      <span data-playlist-duration>{playlist.totalDuration}</span>
+    </p>
+  </div>
+
   <div class="playlist-actions">
     <button class="play-button" type="button" aria-label="プレイリストを再生">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -42,7 +54,7 @@ const { tracks } = Astro.props;
     </div>
 
     <div data-track-list>
-      {tracks.map((track, index) => (
+      {playlist.tracks.map((track, index) => (
         <article class="track-row" data-track-row>
           <span class="track-number">{index + 1}</span>
           <div class="track-title">

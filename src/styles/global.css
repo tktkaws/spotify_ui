@@ -8,6 +8,7 @@
   --text-muted: #b3b3b3;
   --spotify-green: #1ed760;
   --compact-header-height: 72px;
+  --content-max-width: 800px;
   --page-gutter: clamp(16px, 3vw, 36px);
   font-family: "Avenir Next", Avenir, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   font-synthesis: none;
@@ -75,7 +76,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 16px;
-  width: min(100%, 1600px);
+  width: min(100%, var(--content-max-width));
   height: 100%;
   margin: auto;
   padding-inline: var(--page-gutter);
@@ -92,50 +93,44 @@ svg {
 
 .playlist-hero {
   position: relative;
-  min-height: clamp(430px, 47vw, 560px);
   isolation: isolate;
-}
-
-.playlist-hero__wash {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(180deg, rgba(var(--accent-rgb), 0.98) 0%, rgba(var(--accent-rgb), 0.64) 63%, rgba(var(--accent-rgb), 0.18) 100%),
-    #303030;
-}
-
-.playlist-hero__wash::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 86% 8%, rgb(255 255 255 / 18%), transparent 33%),
-    linear-gradient(120deg, transparent 15%, rgb(0 0 0 / 15%) 72%);
-  mix-blend-mode: soft-light;
 }
 
 .playlist-hero__inner {
   display: flex;
-  align-items: flex-end;
-  gap: clamp(24px, 3vw, 42px);
-  width: min(100%, 1600px);
-  min-height: inherit;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: min(100%, var(--content-max-width));
   margin: auto;
-  padding: 76px var(--page-gutter) 32px;
+  padding: 0 var(--page-gutter) 32px;
 }
 
 .cover-wrap {
-  width: clamp(224px, 22vw, 320px);
-  aspect-ratio: 1;
+  width: 70%;
+  padding-top: 80px;
   flex: 0 0 auto;
+  will-change: width, padding-top, opacity;
+}
+
+.cover-visual {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  aspect-ratio: 1;
   overflow: hidden;
-  transform-origin: left bottom;
+  transform-origin: center;
   border-radius: 2px;
   background: #282828;
   box-shadow: 0 22px 56px rgb(0 0 0 / 42%);
-  will-change: transform, opacity;
+}
+
+.cover-visual::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgb(0 0 0 / 72%));
+  content: "";
+  pointer-events: none;
 }
 
 .cover-art {
@@ -160,18 +155,21 @@ svg {
 }
 
 .playlist-meta__title {
-  max-width: 1100px;
+  position: absolute;
+  inset: auto 8% 8%;
+  z-index: 1;
   margin: 0;
-  font-size: clamp(2.7rem, 7.8vw, 7.6rem);
+  font-size: 16cqw;
   font-weight: 900;
-  letter-spacing: -0.065em;
-  line-height: 0.92;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  text-shadow: 0 2px 18px rgb(0 0 0 / 45%);
   text-wrap: balance;
 }
 
 .playlist-meta__description {
   max-width: 66ch;
-  margin: 24px 0 12px;
+  margin: 0 0 12px;
   color: rgb(255 255 255 / 78%);
   font-size: 0.95rem;
   font-weight: 500;
@@ -204,13 +202,12 @@ svg {
   position: relative;
   min-height: 100vh;
   padding: 24px var(--page-gutter) 120px;
-  background:
-    linear-gradient(180deg, rgba(var(--accent-rgb), calc(var(--gradient-strength) * 0.3)) 0, rgba(18, 18, 18, 0.88) 240px, var(--surface) 420px);
 }
 
+.playlist-meta,
 .playlist-actions,
 .track-table {
-  width: min(100%, 1530px);
+  width: min(100%, var(--content-max-width));
   margin-inline: auto;
 }
 
@@ -417,29 +414,8 @@ svg {
 }
 
 @media (max-width: 720px) {
-  .playlist-hero {
-    min-height: 590px;
-  }
-
-  .playlist-hero__inner {
-    align-items: center;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 26px;
-    padding-top: 80px;
-  }
-
-  .cover-wrap {
-    width: clamp(210px, 62vw, 270px);
-    transform-origin: center bottom;
-  }
-
   .playlist-meta {
     width: 100%;
-  }
-
-  .playlist-meta__title {
-    font-size: clamp(2.5rem, 14vw, 4.8rem);
   }
 
   .playlist-meta__description {
